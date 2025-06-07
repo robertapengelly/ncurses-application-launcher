@@ -362,41 +362,11 @@ _restart:
                 
                 if (exec) {
                 
-                    char *p, **args;
+                    char *p;
                     pid_t pid;
                     
                     if ((p = strchr (exec, ' '))) {
                         *p = '\0';
-                    }
-                    
-                    if (exec_terminal) {
-                    
-                        if (is_wsl ()) {
-                        
-                            args = xmalloc (6 * sizeof (char *));
-                            
-                            args[0] = "cmd.exe";
-                            args[1] = "/C";
-                            args[2] = "start";
-                            args[3] = "wsl";
-                            args[4] = "-e";
-                            args[5] = exec;
-                        
-                        } else {
-                        
-                            args = xmalloc (3 * sizeof (char *));
-                            
-                            args[0] = "x-terminal-emulator";
-                            args[1] = "-e";
-                            args[2] = exec;
-                        
-                        }
-                    
-                    } else {
-                    
-                        args = xmalloc (2 * sizeof (char *));
-                        args[0] = exec;
-                    
                     }
                     
                     if ((pid = fork ()) < 0) {
@@ -419,12 +389,29 @@ _restart:
                         
                         close (dev_null);
                         
-                        execvp (args[0], args);
-                        exit (EXIT_FAILURE);
+                        if (exec_terminal) {
+                        
+                            if (is_wsl ()) {
+                            
+                                execlp ("cmd.exe", "cmd.exe", "/C", "start", "wsl", "-e", exec, NULL);
+                                exit (EXIT_FAILURE);
+                            
+                            } else {
+                            
+                                execlp ("x-terminal-emulator", "x-terminal-emulator", "-e", exec, NULL);
+                                exit (EXIT_FAILURE);
+                            
+                            }
+                        
+                        } else {
+                        
+                            execlp (exec, exec, NULL);
+                            exit (EXIT_FAILURE);
+                        
+                        }
                     
                     }
                     
-                    free (args);
                     free (exec);
                 
                 }
