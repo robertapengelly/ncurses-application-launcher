@@ -280,6 +280,12 @@ int main (int argc, char **argv) {
     get_entries (temp);
     free (temp);
     
+    temp = xmalloc (1 + 3 + 1 + 5 + 1 + strlen (root) + 1);
+    sprintf (temp, "/usr/local/%s", root);
+    
+    get_entries (temp);
+    free (temp);
+    
     temp = xmalloc (strlen (home) + 1 + 6 + 1 + strlen (root) + 1);
     sprintf (temp, "%s/.local/%s", home, root);
     
