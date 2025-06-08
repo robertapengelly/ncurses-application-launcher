@@ -184,10 +184,8 @@ static void parse_file (const char *filename) {
 
 }
 
-static void get_entries (void) {
+static void get_entries (const char *root) {
 
-    const char *root = "/usr/share/applications";
-    
     struct dirent *de;
     DIR *dir;
     
@@ -271,10 +269,29 @@ int main (int argc, char **argv) {
     static int selected = 1, normal = 0;
     static int menu_lines = 0, menu_cols = 0;
     
+    char *root = "share/applications", *home = getenv ("HOME"), *temp;
     int i;
+    
     atexit (cleanup);
     
-    get_entries ();
+    temp = xmalloc (5 + strlen (root) + 1);
+    sprintf (temp, "/usr/%s", root);
+    
+    get_entries (temp);
+    free (temp);
+    
+    temp = xmalloc (strlen (home) + 1 + 6 + 1 + strlen (root) + 1);
+    sprintf (temp, "%s/.local/%s", home, root);
+    
+    get_entries (temp);
+    free (temp);
+    
+    if (vec_desktop_entries.length == 0) {
+    
+        printf ("No application launchers found\n");
+        return EXIT_SUCCESS;
+    
+    }
     
 _restart:
     
